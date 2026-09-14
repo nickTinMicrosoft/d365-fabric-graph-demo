@@ -93,6 +93,9 @@ The Fabric implementation is stored under `fabric/` and is controlled by:
 - `docs/deployment-guide.md` — complete deployment procedure.
 - `docs/fabric-graph-walkthrough.md` — step-by-step Fabric build, visual
   exploration, GQL, and refresh walkthrough.
+- `docs/presentation/d365-fabric-graph-demo.pptx` — customer-neutral
+  presentation with editable diagrams, code excerpts, validated results, and
+  speaker notes.
 - `docs/security-and-operations.md` — production security and operating guidance.
 - `docs/troubleshooting.md` — common failure modes and resolutions.
 
