@@ -1,0 +1,156 @@
+{
+  "publisher": {
+    "uniqueName": "D365FabricDemoPublisher",
+    "friendlyName": "D365 Fabric Demo Publisher",
+    "prefix": "dfd",
+    "optionValuePrefix": 74810
+  },
+  "solution": {
+    "uniqueName": "D365FabricGraphDemo",
+    "friendlyName": "D365 Fabric Graph Demo",
+    "version": "1.0.0.0"
+  },
+  "tables": [
+    {
+      "schemaName": "dfd_Product",
+      "logicalName": "dfd_product",
+      "entitySetName": "dfd_products",
+      "displayName": "Demo Product",
+      "displayCollectionName": "Demo Products",
+      "primaryName": {
+        "schemaName": "dfd_Name",
+        "displayName": "Product Name",
+        "maxLength": 200
+      },
+      "columns": [
+        {"schemaName": "dfd_DemoId", "displayName": "Demo ID", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_SKU", "displayName": "SKU", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_Category", "displayName": "Category", "type": "String", "maxLength": 100},
+        {"schemaName": "dfd_UnitPrice", "displayName": "Unit Price", "type": "Decimal", "precision": 2}
+      ]
+    },
+    {
+      "schemaName": "dfd_Order",
+      "logicalName": "dfd_order",
+      "entitySetName": "dfd_orders",
+      "displayName": "Demo Order",
+      "displayCollectionName": "Demo Orders",
+      "primaryName": {
+        "schemaName": "dfd_Name",
+        "displayName": "Order Name",
+        "maxLength": 200
+      },
+      "columns": [
+        {"schemaName": "dfd_DemoId", "displayName": "Demo ID", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_OrderNumber", "displayName": "Order Number", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_OrderDate", "displayName": "Order Date", "type": "Date"},
+        {"schemaName": "dfd_TotalAmount", "displayName": "Total Amount", "type": "Decimal", "precision": 2},
+        {"schemaName": "dfd_OrderStatus", "displayName": "Order Status", "type": "String", "maxLength": 50}
+      ]
+    },
+    {
+      "schemaName": "dfd_OrderLine",
+      "logicalName": "dfd_orderline",
+      "entitySetName": "dfd_orderlines",
+      "displayName": "Demo Order Line",
+      "displayCollectionName": "Demo Order Lines",
+      "primaryName": {
+        "schemaName": "dfd_Name",
+        "displayName": "Order Line Name",
+        "maxLength": 200
+      },
+      "columns": [
+        {"schemaName": "dfd_DemoId", "displayName": "Demo ID", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_Quantity", "displayName": "Quantity", "type": "Integer"},
+        {"schemaName": "dfd_UnitPrice", "displayName": "Unit Price", "type": "Decimal", "precision": 2}
+      ]
+    },
+    {
+      "schemaName": "dfd_Invoice",
+      "logicalName": "dfd_invoice",
+      "entitySetName": "dfd_invoices",
+      "displayName": "Demo Invoice",
+      "displayCollectionName": "Demo Invoices",
+      "primaryName": {
+        "schemaName": "dfd_Name",
+        "displayName": "Invoice Name",
+        "maxLength": 200
+      },
+      "columns": [
+        {"schemaName": "dfd_DemoId", "displayName": "Demo ID", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_InvoiceNumber", "displayName": "Invoice Number", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_InvoiceDate", "displayName": "Invoice Date", "type": "Date"},
+        {"schemaName": "dfd_TotalAmount", "displayName": "Total Amount", "type": "Decimal", "precision": 2},
+        {"schemaName": "dfd_InvoiceStatus", "displayName": "Invoice Status", "type": "String", "maxLength": 50}
+      ]
+    },
+    {
+      "schemaName": "dfd_ServiceCase",
+      "logicalName": "dfd_servicecase",
+      "entitySetName": "dfd_servicecases",
+      "displayName": "Demo Service Case",
+      "displayCollectionName": "Demo Service Cases",
+      "primaryName": {
+        "schemaName": "dfd_Name",
+        "displayName": "Case Title",
+        "maxLength": 200
+      },
+      "columns": [
+        {"schemaName": "dfd_DemoId", "displayName": "Demo ID", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_CaseNumber", "displayName": "Case Number", "type": "String", "maxLength": 50, "required": true},
+        {"schemaName": "dfd_Priority", "displayName": "Priority", "type": "String", "maxLength": 50},
+        {"schemaName": "dfd_CaseStatus", "displayName": "Case Status", "type": "String", "maxLength": 50}
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "schemaName": "dfd_account_order",
+      "referencedEntity": "account",
+      "referencingEntity": "dfd_order",
+      "lookupSchemaName": "dfd_AccountId",
+      "lookupDisplayName": "Account",
+      "navigationProperty": "dfd_accountid"
+    },
+    {
+      "schemaName": "dfd_order_orderline",
+      "referencedEntity": "dfd_order",
+      "referencingEntity": "dfd_orderline",
+      "lookupSchemaName": "dfd_OrderId",
+      "lookupDisplayName": "Order",
+      "navigationProperty": "dfd_orderid"
+    },
+    {
+      "schemaName": "dfd_product_orderline",
+      "referencedEntity": "dfd_product",
+      "referencingEntity": "dfd_orderline",
+      "lookupSchemaName": "dfd_ProductId",
+      "lookupDisplayName": "Product",
+      "navigationProperty": "dfd_productid"
+    },
+    {
+      "schemaName": "dfd_order_invoice",
+      "referencedEntity": "dfd_order",
+      "referencingEntity": "dfd_invoice",
+      "lookupSchemaName": "dfd_OrderId",
+      "lookupDisplayName": "Order",
+      "navigationProperty": "dfd_orderid"
+    },
+    {
+      "schemaName": "dfd_account_servicecase",
+      "referencedEntity": "account",
+      "referencingEntity": "dfd_servicecase",
+      "lookupSchemaName": "dfd_AccountId",
+      "lookupDisplayName": "Account",
+      "navigationProperty": "dfd_accountid"
+    },
+    {
+      "schemaName": "dfd_contact_servicecase",
+      "referencedEntity": "contact",
+      "referencingEntity": "dfd_servicecase",
+      "lookupSchemaName": "dfd_ContactId",
+      "lookupDisplayName": "Contact",
+      "navigationProperty": "dfd_contactid"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Lakehouse",
+    "displayName": "lh_d365_graph_curated",
+    "description": "Curated analytical graph nodes and edges derived from Dataverse."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "1c995a2c-216c-4af6-b790-3b8e6070b09e"
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "recordSets": [
+    {
+      "logicalName": "account",
+      "entitySetName": "accounts",
+      "keyField": "accountnumber",
+      "records": [
+        {"key": "ACCT-001", "fields": {"name": "Contoso City Services", "address1_city": "Redmond", "address1_stateorprovince": "WA"}},
+        {"key": "ACCT-002", "fields": {"name": "Fabrikam County Operations", "address1_city": "Austin", "address1_stateorprovince": "TX"}},
+        {"key": "ACCT-003", "fields": {"name": "Northwind Public Works", "address1_city": "Chicago", "address1_stateorprovince": "IL"}}
+      ]
+    },
+    {
+      "logicalName": "contact",
+      "entitySetName": "contacts",
+      "keyField": "emailaddress1",
+      "records": [
+        {
+          "key": "maya.chen@example.invalid",
+          "fields": {"firstname": "Maya", "lastname": "Chen"},
+          "lookups": [{"property": "parentcustomerid_account", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-001"}]
+        },
+        {
+          "key": "jordan.lee@example.invalid",
+          "fields": {"firstname": "Jordan", "lastname": "Lee"},
+          "lookups": [{"property": "parentcustomerid_account", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-002"}]
+        },
+        {
+          "key": "sam.rivera@example.invalid",
+          "fields": {"firstname": "Sam", "lastname": "Rivera"},
+          "lookups": [{"property": "parentcustomerid_account", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-003"}]
+        }
+      ]
+    },
+    {
+      "logicalName": "dfd_product",
+      "entitySetName": "dfd_products",
+      "keyField": "dfd_demoid",
+      "records": [
+        {"key": "PROD-001", "fields": {"dfd_name": "Civic Permitting Suite", "dfd_sku": "CIV-PERMIT", "dfd_category": "Civic Services", "dfd_unitprice": 24000}},
+        {"key": "PROD-002", "fields": {"dfd_name": "Public Safety Records", "dfd_sku": "PS-RECORDS", "dfd_category": "Public Safety", "dfd_unitprice": 36000}},
+        {"key": "PROD-003", "fields": {"dfd_name": "ERP Financial Management", "dfd_sku": "ERP-FIN", "dfd_category": "Enterprise Resource Planning", "dfd_unitprice": 48000}}
+      ]
+    },
+    {
+      "logicalName": "dfd_order",
+      "entitySetName": "dfd_orders",
+      "keyField": "dfd_demoid",
+      "records": [
+        {
+          "key": "ORDER-001",
+          "fields": {"dfd_name": "Contoso modernization order", "dfd_ordernumber": "SO-1001", "dfd_orderdate": "2026-08-05", "dfd_totalamount": 60000, "dfd_orderstatus": "Active"},
+          "lookups": [{"property": "dfd_accountid", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-001"}]
+        },
+        {
+          "key": "ORDER-002",
+          "fields": {"dfd_name": "Fabrikam finance order", "dfd_ordernumber": "SO-1002", "dfd_orderdate": "2026-08-19", "dfd_totalamount": 48000, "dfd_orderstatus": "Active"},
+          "lookups": [{"property": "dfd_accountid", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-002"}]
+        },
+        {
+          "key": "ORDER-003",
+          "fields": {"dfd_name": "Northwind permitting order", "dfd_ordernumber": "SO-1003", "dfd_orderdate": "2026-09-02", "dfd_totalamount": 24000, "dfd_orderstatus": "Pending"},
+          "lookups": [{"property": "dfd_accountid", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-003"}]
+        }
+      ]
+    },
+    {
+      "logicalName": "dfd_orderline",
+      "entitySetName": "dfd_orderlines",
+      "keyField": "dfd_demoid",
+      "records": [
+        {
+          "key": "LINE-001",
+          "fields": {"dfd_name": "SO-1001 Civic Permitting", "dfd_quantity": 1, "dfd_unitprice": 24000},
+          "lookups": [
+            {"property": "dfd_orderid", "targetSet": "dfd_orders", "targetKeyField": "dfd_demoid", "targetKey": "ORDER-001"},
+            {"property": "dfd_productid", "targetSet": "dfd_products", "targetKeyField": "dfd_demoid", "targetKey": "PROD-001"}
+          ]
+        },
+        {
+          "key": "LINE-002",
+          "fields": {"dfd_name": "SO-1001 Public Safety Records", "dfd_quantity": 1, "dfd_unitprice": 36000},
+          "lookups": [
+            {"property": "dfd_orderid", "targetSet": "dfd_orders", "targetKeyField": "dfd_demoid", "targetKey": "ORDER-001"},
+            {"property": "dfd_productid", "targetSet": "dfd_products", "targetKeyField": "dfd_demoid", "targetKey": "PROD-002"}
+          ]
+        },
+        {
+          "key": "LINE-003",
+          "fields": {"dfd_name": "SO-1002 ERP Financial Management", "dfd_quantity": 1, "dfd_unitprice": 48000},
+          "lookups": [
+            {"property": "dfd_orderid", "targetSet": "dfd_orders", "targetKeyField": "dfd_demoid", "targetKey": "ORDER-002"},
+            {"property": "dfd_productid", "targetSet": "dfd_products", "targetKeyField": "dfd_demoid", "targetKey": "PROD-003"}
+          ]
+        },
+        {
+          "key": "LINE-004",
+          "fields": {"dfd_name": "SO-1003 Civic Permitting", "dfd_quantity": 1, "dfd_unitprice": 24000},
+          "lookups": [
+            {"property": "dfd_orderid", "targetSet": "dfd_orders", "targetKeyField": "dfd_demoid", "targetKey": "ORDER-003"},
+            {"property": "dfd_productid", "targetSet": "dfd_products", "targetKeyField": "dfd_demoid", "targetKey": "PROD-001"}
+          ]
+        }
+      ]
+    },
+    {
+      "logicalName": "dfd_invoice",
+      "entitySetName": "dfd_invoices",
+      "keyField": "dfd_demoid",
+      "records": [
+        {
+          "key": "INV-001",
+          "fields": {"dfd_name": "Invoice INV-9001", "dfd_invoicenumber": "INV-9001", "dfd_invoicedate": "2026-08-31", "dfd_totalamount": 60000, "dfd_invoicestatus": "Issued"},
+          "lookups": [{"property": "dfd_orderid", "targetSet": "dfd_orders", "targetKeyField": "dfd_demoid", "targetKey": "ORDER-001"}]
+        },
+        {
+          "key": "INV-002",
+          "fields": {"dfd_name": "Invoice INV-9002", "dfd_invoicenumber": "INV-9002", "dfd_invoicedate": "2026-09-10", "dfd_totalamount": 48000, "dfd_invoicestatus": "Pending"},
+          "lookups": [{"property": "dfd_orderid", "targetSet": "dfd_orders", "targetKeyField": "dfd_demoid", "targetKey": "ORDER-002"}]
+        }
+      ]
+    },
+    {
+      "logicalName": "dfd_servicecase",
+      "entitySetName": "dfd_servicecases",
+      "keyField": "dfd_demoid",
+      "records": [
+        {
+          "key": "CASE-001",
+          "fields": {"dfd_name": "Permit workflow configuration", "dfd_casenumber": "CS-7001", "dfd_priority": "High", "dfd_casestatus": "Open"},
+          "lookups": [
+            {"property": "dfd_accountid", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-001"},
+            {"property": "dfd_contactid", "targetSet": "contacts", "targetKeyField": "emailaddress1", "targetKey": "maya.chen@example.invalid"}
+          ]
+        },
+        {
+          "key": "CASE-002",
+          "fields": {"dfd_name": "Financial period close assistance", "dfd_casenumber": "CS-7002", "dfd_priority": "Medium", "dfd_casestatus": "Open"},
+          "lookups": [
+            {"property": "dfd_accountid", "targetSet": "accounts", "targetKeyField": "accountnumber", "targetKey": "ACCT-002"},
+            {"property": "dfd_contactid", "targetSet": "contacts", "targetKeyField": "emailaddress1", "targetKey": "jordan.lee@example.invalid"}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D365 Relationship Graph</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Segoe UI", Arial, sans-serif;
+      --surface: #fff;
+      --canvas: #f6f8fb;
+      --border: #d8dee8;
+      --text: #172033;
+      --muted: #596579;
+      --accent: #0f6cbd;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--text); background: var(--canvas); }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; padding: 16px 20px; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    h1 { margin: 0; font-size: 20px; font-weight: 600; }
+    #summary { color: var(--muted); font-size: 13px; }
+    main { display: grid; grid-template-columns: 250px minmax(0, 1fr) 280px; min-height: 720px; }
+    aside { padding: 18px; background: var(--surface); }
+    aside:first-child { border-right: 1px solid var(--border); }
+    aside:last-child { border-left: 1px solid var(--border); }
+    h2 { margin: 0 0 12px; font-size: 14px; }
+    .control { display: flex; align-items: center; gap: 8px; margin: 9px 0; font-size: 13px; }
+    .swatch { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+    input[type="search"] {
+      width: 100%; margin-bottom: 14px; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: 4px;
+    }
+    button {
+      width: 100%; margin-top: 14px; padding: 8px 12px; border: 0;
+      border-radius: 4px; color: #fff; background: var(--accent); cursor: pointer;
+    }
+    #canvas { position: relative; min-width: 0; overflow: hidden; }
+    svg { width: 100%; height: 720px; display: block; background: var(--canvas); }
+    .edge { stroke: #a8b1c1; stroke-width: 1.5; }
+    .node circle { stroke: #fff; stroke-width: 2; cursor: grab; }
+    .node text {
+      pointer-events: none; font-size: 11px; fill: var(--text);
+      paint-order: stroke; stroke: var(--canvas); stroke-width: 4px; stroke-linejoin: round;
+    }
+    .node.match circle { stroke: #111827; stroke-width: 4; }
+    .node.dimmed, .edge.dimmed { opacity: .12; }
+    #loading, #error {
+      position: absolute; inset: 20px auto auto 20px; padding: 10px 12px;
+      border-radius: 4px; background: var(--surface); box-shadow: 0 2px 8px #0002;
+    }
+    #error { color: #a4262c; display: none; }
+    #details { font-size: 13px; line-height: 1.45; }
+    #details dl { margin: 0; }
+    #details dt { margin-top: 11px; color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    #details dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+    .hint { color: var(--muted); font-size: 12px; line-height: 1.45; }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 210px minmax(0, 1fr); }
+      aside:last-child { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>D365 Relationship Graph</h1>
+    <div id="summary">Loading Dataverse records...</div>
+  </header>
+  <main>
+    <aside>
+      <input id="search" type="search" placeholder="Find a record" aria-label="Find a record">
+      <h2>Entity types</h2>
+      <div id="filters"></div>
+      <button id="reset" type="button">Reset layout</button>
+      <p class="hint">Drag nodes to inspect dense areas. Select a node to see its Dataverse details.</p>
+    </aside>
+    <section id="canvas" aria-label="Interactive relationship graph">
+      <div id="loading">Loading graph...</div>
+      <div id="error" role="alert"></div>
+      <svg id="graph" viewBox="0 0 1100 720" role="img" aria-label="D365 record relationship graph"></svg>
+    </section>
+    <aside>
+      <h2>Selected record</h2>
+      <div id="details" class="hint">Select a node in the graph.</div>
+    </aside>
+  </main>
+  <script>
+    "use strict";
+
+    const NS = "http://www.w3.org/2000/svg";
+    const WIDTH = 1100;
+    const HEIGHT = 720;
+    const TYPES = {
+      Account: { color: "#0078d4", radius: 22 },
+      Contact: { color: "#107c10", radius: 17 },
+      Order: { color: "#8764b8", radius: 20 },
+      "Order Line": { color: "#69797e", radius: 12 },
+      Product: { color: "#ca5010", radius: 18 },
+      Invoice: { color: "#d13438", radius: 18 },
+      "Service Case": { color: "#038387", radius: 18 }
+    };
+
+    const state = { nodes: [], edges: [], enabled: new Set(Object.keys(TYPES)), frame: 0 };
+    const svg = document.getElementById("graph");
+
+    function normalizeId(value) {
+      return value ? value.replace(/[{}]/g, "").toLowerCase() : null;
+    }
+
+    async function retrieve(path) {
+      const response = await fetch(`/api/data/v9.2/${path}`, {
+        credentials: "same-origin",
+        headers: { Accept: "application/json", "OData-MaxVersion": "4.0", "OData-Version": "4.0" }
+      });
+      if (!response.ok) {
+        const body = await response.text();
+        throw new Error(`Dataverse returned ${response.status}: ${body}`);
+      }
+      return (await response.json()).value;
+    }
+
+    function addNode(type, id, label, key, properties) {
+      const normalized = normalizeId(id);
+      state.nodes.push({
+        id: `${type}:${normalized}`, objectId: normalized, type, label, key,
+        properties, x: WIDTH / 2, y: HEIGHT / 2, vx: 0, vy: 0, fixed: false
+      });
+    }
+
+    function addEdge(sourceObjectId, targetObjectId, relationship) {
+      const source = state.nodes.find(node => node.objectId === normalizeId(sourceObjectId));
+      const target = state.nodes.find(node => node.objectId === normalizeId(targetObjectId));
+      if (source && target) state.edges.push({ source, target, relationship });
+    }
+
+    async function loadGraph() {
+      const [
+        accounts, contacts, products, orders, orderLines, invoices, serviceCases
+      ] = await Promise.all([
+        retrieve("accounts?$select=accountid,name,accountnumber,address1_city,address1_stateorprovince&$filter=startswith(accountnumber,'ACCT-')"),
+        retrieve("contacts?$select=contactid,fullname,emailaddress1,_parentcustomerid_value&$filter=endswith(emailaddress1,'@example.invalid')"),
+        retrieve("dfd_products?$select=dfd_productid,dfd_name,dfd_demoid,dfd_sku,dfd_category,dfd_unitprice"),
+        retrieve("dfd_orders?$select=dfd_orderid,dfd_name,dfd_demoid,dfd_ordernumber,dfd_orderstatus,dfd_totalamount,_dfd_accountid_value"),
+        retrieve("dfd_orderlines?$select=dfd_orderlineid,dfd_name,dfd_demoid,dfd_quantity,dfd_unitprice,_dfd_orderid_value,_dfd_productid_value"),
+        retrieve("dfd_invoices?$select=dfd_invoiceid,dfd_name,dfd_demoid,dfd_invoicenumber,dfd_invoicestatus,dfd_totalamount,_dfd_orderid_value"),
+        retrieve("dfd_servicecases?$select=dfd_servicecaseid,dfd_name,dfd_demoid,dfd_casenumber,dfd_priority,dfd_casestatus,_dfd_accountid_value,_dfd_contactid_value")
+      ]);
+
+      accounts.forEach(row => addNode("Account", row.accountid, row.name, row.accountnumber, {
+        "Account number": row.accountnumber, Location: [row.address1_city, row.address1_stateorprovince].filter(Boolean).join(", ")
+      }));
+      contacts.forEach(row => addNode("Contact", row.contactid, row.fullname, row.emailaddress1, { Email: row.emailaddress1 }));
+      products.forEach(row => addNode("Product", row.dfd_productid, row.dfd_name, row.dfd_demoid, {
+        SKU: row.dfd_sku, Category: row.dfd_category, "Unit price": row.dfd_unitprice
+      }));
+      orders.forEach(row => addNode("Order", row.dfd_orderid, row.dfd_name, row.dfd_demoid, {
+        "Order number": row.dfd_ordernumber, Status: row.dfd_orderstatus, Total: row.dfd_totalamount
+      }));
+      orderLines.forEach(row => addNode("Order Line", row.dfd_orderlineid, row.dfd_name, row.dfd_demoid, {
+        Quantity: row.dfd_quantity, "Unit price": row.dfd_unitprice
+      }));
+      invoices.forEach(row => addNode("Invoice", row.dfd_invoiceid, row.dfd_name, row.dfd_demoid, {
+        "Invoice number": row.dfd_invoicenumber, Status: row.dfd_invoicestatus, Total: row.dfd_totalamount
+      }));
+      serviceCases.forEach(row => addNode("Service Case", row.dfd_servicecaseid, row.dfd_name, row.dfd_demoid, {
+        "Case number": row.dfd_casenumber, Priority: row.dfd_priority, Status: row.dfd_casestatus
+      }));
+
+      contacts.forEach(row => addEdge(row.contactid, row._parentcustomerid_value, "belongs to"));
+      orders.forEach(row => addEdge(row._dfd_accountid_value, row.dfd_orderid, "placed"));
+      orderLines.forEach(row => {
+        addEdge(row._dfd_orderid_value, row.dfd_orderlineid, "contains");
+        addEdge(row.dfd_orderlineid, row._dfd_productid_value, "references");
+      });
+      invoices.forEach(row => addEdge(row._dfd_orderid_value, row.dfd_invoiceid, "generated"));
+      serviceCases.forEach(row => {
+        addEdge(row._dfd_accountid_value, row.dfd_servicecaseid, "opened");
+        addEdge(row._dfd_contactid_value, row.dfd_servicecaseid, "reported");
+      });
+    }
+
+    function visibleNodes() {
+      return state.nodes.filter(node => state.enabled.has(node.type));
+    }
+
+    function initializePositions() {
+      const nodes = visibleNodes();
+      nodes.forEach((node, index) => {
+        const angle = (index / Math.max(nodes.length, 1)) * Math.PI * 2;
+        const ring = 190 + (index % 3) * 45;
+        node.x = WIDTH / 2 + Math.cos(angle) * ring;
+        node.y = HEIGHT / 2 + Math.sin(angle) * ring;
+        node.vx = 0;
+        node.vy = 0;
+        node.fixed = false;
+      });
+    }
+
+    function simulate() {
+      const nodes = visibleNodes();
+      const edges = state.edges.filter(edge => state.enabled.has(edge.source.type) && state.enabled.has(edge.target.type));
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          let dx = b.x - a.x, dy = b.y - a.y;
+          const distance2 = Math.max(dx * dx + dy * dy, 100);
+          const force = 1600 / distance2;
+          const distance = Math.sqrt(distance2);
+          dx /= distance; dy /= distance;
+          a.vx -= dx * force; a.vy -= dy * force;
+          b.vx += dx * force; b.vy += dy * force;
+        }
+      }
+      edges.forEach(edge => {
+        const dx = edge.target.x - edge.source.x;
+        const dy = edge.target.y - edge.source.y;
+        const distance = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+        const force = (distance - 115) * 0.012;
+        edge.source.vx += (dx / distance) * force;
+        edge.source.vy += (dy / distance) * force;
+        edge.target.vx -= (dx / distance) * force;
+        edge.target.vy -= (dy / distance) * force;
+      });
+      nodes.forEach(node => {
+        if (node.fixed) return;
+        node.vx += (WIDTH / 2 - node.x) * 0.0009;
+        node.vy += (HEIGHT / 2 - node.y) * 0.0009;
+        node.vx *= 0.84; node.vy *= 0.84;
+        node.x = Math.max(35, Math.min(WIDTH - 35, node.x + node.vx));
+        node.y = Math.max(35, Math.min(HEIGHT - 35, node.y + node.vy));
+      });
+    }
+
+    function svgElement(name, attributes = {}) {
+      const element = document.createElementNS(NS, name);
+      Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    }
+
+    function selectNode(node) {
+      const details = document.getElementById("details");
+      details.replaceChildren();
+      const dl = document.createElement("dl");
+      [["Type", node.type], ["Name", node.label], ["Demo key", node.key], ...Object.entries(node.properties)]
+        .filter(([, value]) => value !== null && value !== undefined && value !== "")
+        .forEach(([key, value]) => {
+          const dt = document.createElement("dt");
+          const dd = document.createElement("dd");
+          dt.textContent = key;
+          dd.textContent = String(value);
+          dl.append(dt, dd);
+        });
+      details.append(dl);
+    }
+
+    function attachDrag(group, node) {
+      group.addEventListener("pointerdown", event => {
+        group.setPointerCapture(event.pointerId);
+        node.fixed = true;
+      });
+      group.addEventListener("pointermove", event => {
+        if (!group.hasPointerCapture(event.pointerId)) return;
+        const point = svg.createSVGPoint();
+        point.x = event.clientX; point.y = event.clientY;
+        const transformed = point.matrixTransform(svg.getScreenCTM().inverse());
+        node.x = transformed.x; node.y = transformed.y;
+        render();
+      });
+      group.addEventListener("pointerup", event => group.releasePointerCapture(event.pointerId));
+    }
+
+    function render() {
+      svg.replaceChildren();
+      const nodes = visibleNodes();
+      const nodeIds = new Set(nodes.map(node => node.id));
+      state.edges.filter(edge => nodeIds.has(edge.source.id) && nodeIds.has(edge.target.id)).forEach(edge => {
+        svg.append(svgElement("line", {
+          class: "edge", x1: edge.source.x, y1: edge.source.y, x2: edge.target.x, y2: edge.target.y
+        }));
+      });
+      const search = document.getElementById("search").value.trim().toLowerCase();
+      nodes.forEach(node => {
+        const isMatch = search && `${node.label} ${node.key} ${node.type}`.toLowerCase().includes(search);
+        const group = svgElement("g", {
+          class: `node${isMatch ? " match" : ""}${search && !isMatch ? " dimmed" : ""}`,
+          transform: `translate(${node.x} ${node.y})`, tabindex: "0", role: "button",
+          "aria-label": `${node.type}: ${node.label}`
+        });
+        group.append(svgElement("circle", { r: TYPES[node.type].radius, fill: TYPES[node.type].color }));
+        const text = svgElement("text", { x: TYPES[node.type].radius + 6, y: 4 });
+        text.textContent = node.label;
+        group.append(text);
+        group.addEventListener("click", () => selectNode(node));
+        group.addEventListener("keydown", event => { if (event.key === "Enter") selectNode(node); });
+        attachDrag(group, node);
+        svg.append(group);
+      });
+    }
+
+    function runLayout(iterations = 180) {
+      cancelAnimationFrame(state.frame);
+      let remaining = iterations;
+      const tick = () => {
+        for (let i = 0; i < 3 && remaining > 0; i++, remaining--) simulate();
+        render();
+        if (remaining > 0) state.frame = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+
+    function buildFilters() {
+      const container = document.getElementById("filters");
+      Object.entries(TYPES).forEach(([type, config]) => {
+        const label = document.createElement("label");
+        label.className = "control";
+        const input = document.createElement("input");
+        input.type = "checkbox"; input.checked = true;
+        input.addEventListener("change", () => {
+          if (input.checked) state.enabled.add(type); else state.enabled.delete(type);
+          initializePositions(); runLayout(100);
+        });
+        const swatch = document.createElement("span");
+        swatch.className = "swatch"; swatch.style.background = config.color;
+        const text = document.createElement("span");
+        text.textContent = type;
+        label.append(input, swatch, text);
+        container.append(label);
+      });
+    }
+
+    async function start() {
+      buildFilters();
+      document.getElementById("search").addEventListener("input", render);
+      document.getElementById("reset").addEventListener("click", () => {
+        initializePositions(); runLayout();
+      });
+      try {
+        await loadGraph();
+        initializePositions();
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("summary").textContent =
+          `${state.nodes.length} records · ${state.edges.length} relationships · live from Dataverse`;
+        runLayout();
+      } catch (error) {
+        document.getElementById("loading").style.display = "none";
+        const target = document.getElementById("error");
+        target.textContent = error.message;
+        target.style.display = "block";
+        document.getElementById("summary").textContent = "Unable to load graph";
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>

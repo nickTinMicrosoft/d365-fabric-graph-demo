@@ -1,0 +1,162 @@
+{
+  "version": "1.0",
+  "nodeTypes": [
+    {
+      "type": "Account",
+      "table": "account",
+      "where": "accountnumber LIKE 'ACCT-%'",
+      "idColumns": ["accountid"],
+      "labelColumns": ["name"],
+      "businessKeyColumns": ["accountnumber"],
+      "properties": {
+        "city": ["address1_city"],
+        "state": ["address1_stateorprovince"]
+      }
+    },
+    {
+      "type": "Contact",
+      "table": "contact",
+      "where": "emailaddress1 LIKE '%@example.invalid'",
+      "idColumns": ["contactid"],
+      "labelColumns": ["fullname", "name"],
+      "businessKeyColumns": ["emailaddress1"],
+      "properties": {
+        "email": ["emailaddress1"]
+      }
+    },
+    {
+      "type": "Product",
+      "table": "dfd_product",
+      "idColumns": ["dfd_productid"],
+      "labelColumns": ["dfd_name"],
+      "businessKeyColumns": ["dfd_demoid", "dfd_sku"],
+      "properties": {
+        "sku": ["dfd_sku"],
+        "category": ["dfd_category"],
+        "unitPrice": ["dfd_unitprice"]
+      }
+    },
+    {
+      "type": "Order",
+      "table": "dfd_order",
+      "idColumns": ["dfd_orderid"],
+      "labelColumns": ["dfd_name"],
+      "businessKeyColumns": ["dfd_demoid", "dfd_ordernumber"],
+      "properties": {
+        "orderNumber": ["dfd_ordernumber"],
+        "orderDate": ["dfd_orderdate"],
+        "status": ["dfd_orderstatus"],
+        "totalAmount": ["dfd_totalamount"]
+      }
+    },
+    {
+      "type": "OrderLine",
+      "table": "dfd_orderline",
+      "idColumns": ["dfd_orderlineid"],
+      "labelColumns": ["dfd_name"],
+      "businessKeyColumns": ["dfd_demoid"],
+      "properties": {
+        "quantity": ["dfd_quantity"],
+        "unitPrice": ["dfd_unitprice"]
+      }
+    },
+    {
+      "type": "Invoice",
+      "table": "dfd_invoice",
+      "idColumns": ["dfd_invoiceid"],
+      "labelColumns": ["dfd_name"],
+      "businessKeyColumns": ["dfd_demoid", "dfd_invoicenumber"],
+      "properties": {
+        "invoiceNumber": ["dfd_invoicenumber"],
+        "invoiceDate": ["dfd_invoicedate"],
+        "status": ["dfd_invoicestatus"],
+        "totalAmount": ["dfd_totalamount"]
+      }
+    },
+    {
+      "type": "ServiceCase",
+      "table": "dfd_servicecase",
+      "idColumns": ["dfd_servicecaseid"],
+      "labelColumns": ["dfd_name"],
+      "businessKeyColumns": ["dfd_demoid", "dfd_casenumber"],
+      "properties": {
+        "caseNumber": ["dfd_casenumber"],
+        "priority": ["dfd_priority"],
+        "status": ["dfd_casestatus"]
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "id": "contact-belongs-to-account",
+      "type": "BELONGS_TO",
+      "table": "contact",
+      "where": "emailaddress1 LIKE '%@example.invalid'",
+      "rowIdColumns": ["contactid"],
+      "sourceType": "Contact",
+      "sourceColumns": ["contactid"],
+      "targetType": "Account",
+      "targetColumns": ["_parentcustomerid_value", "parentcustomerid"]
+    },
+    {
+      "id": "account-placed-order",
+      "type": "PLACED",
+      "table": "dfd_order",
+      "rowIdColumns": ["dfd_orderid"],
+      "sourceType": "Account",
+      "sourceColumns": ["_dfd_accountid_value", "dfd_accountid"],
+      "targetType": "Order",
+      "targetColumns": ["dfd_orderid"]
+    },
+    {
+      "id": "order-contains-orderline",
+      "type": "CONTAINS",
+      "table": "dfd_orderline",
+      "rowIdColumns": ["dfd_orderlineid"],
+      "sourceType": "Order",
+      "sourceColumns": ["_dfd_orderid_value", "dfd_orderid"],
+      "targetType": "OrderLine",
+      "targetColumns": ["dfd_orderlineid"]
+    },
+    {
+      "id": "orderline-references-product",
+      "type": "REFERENCES",
+      "table": "dfd_orderline",
+      "rowIdColumns": ["dfd_orderlineid"],
+      "sourceType": "OrderLine",
+      "sourceColumns": ["dfd_orderlineid"],
+      "targetType": "Product",
+      "targetColumns": ["_dfd_productid_value", "dfd_productid"]
+    },
+    {
+      "id": "order-generated-invoice",
+      "type": "GENERATED",
+      "table": "dfd_invoice",
+      "rowIdColumns": ["dfd_invoiceid"],
+      "sourceType": "Order",
+      "sourceColumns": ["_dfd_orderid_value", "dfd_orderid"],
+      "targetType": "Invoice",
+      "targetColumns": ["dfd_invoiceid"]
+    },
+    {
+      "id": "account-opened-servicecase",
+      "type": "OPENED",
+      "table": "dfd_servicecase",
+      "rowIdColumns": ["dfd_servicecaseid"],
+      "sourceType": "Account",
+      "sourceColumns": ["_dfd_accountid_value", "dfd_accountid"],
+      "targetType": "ServiceCase",
+      "targetColumns": ["dfd_servicecaseid"]
+    },
+    {
+      "id": "contact-reported-servicecase",
+      "type": "REPORTED",
+      "table": "dfd_servicecase",
+      "rowIdColumns": ["dfd_servicecaseid"],
+      "sourceType": "Contact",
+      "sourceColumns": ["_dfd_contactid_value", "dfd_contactid"],
+      "targetType": "ServiceCase",
+      "targetColumns": ["dfd_servicecaseid"]
+    }
+  ]
+}

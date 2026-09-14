@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_build_dataverse_graph",
+    "description": "Build configuration-driven graph node and edge Delta tables from a linked Dataverse Lakehouse."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "6f471725-00a5-4381-b335-d2e78b3f1b85"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "tenantId": "<tenant-guid>",
+  "capacityName": "<fabric-capacity-name>",
+  "workspaceName": "d365 Graph",
+  "workspaceId": "<workspace-guid>",
+  "workspaceIdentityApplicationId": "<workspace-identity-application-guid>",
+  "workspaceIdentityServicePrincipalId": "<workspace-identity-object-guid>",
+  "dataverseEnvironmentUrl": "https://<environment>.crm.dynamics.com",
+  "dataverseEnvironmentId": "<power-platform-environment-guid>",
+  "sourceLakehouseName": "<dataverse-generated-lakehouse-name>",
+  "sourceLakehouseId": "<dataverse-generated-lakehouse-guid>",
+  "curatedLakehouseName": "lh_d365_graph_curated",
+  "curatedLakehouseId": "<curated-lakehouse-guid>",
+  "notebookName": "nb_build_dataverse_graph",
+  "notebookId": "<graph-notebook-guid>"
+}
