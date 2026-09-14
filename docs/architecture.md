@@ -23,6 +23,8 @@ Dataverse-generated landing Lakehouse
 Curated graph Lakehouse
   graph_nodes
   graph_edges
+  graph_node_<entity>
+  graph_edge_<relationship>
              |
              +--> Spark and notebook traversal
              +--> SQL analytics endpoint
@@ -71,6 +73,11 @@ The Dataverse link owns the generated landing artifacts. Do not write transforma
 | `mapping_version` | Mapping version used for the build |
 | `run_id` | Identifier shared by rows from one build |
 | `curated_at` | UTC build timestamp |
+
+The notebook also materializes one managed table per node and relationship type.
+These typed projections provide unambiguous source tables for Fabric Graph
+Model and Fabric IQ Ontology bindings while `graph_nodes` and `graph_edges`
+remain the stable, unified analytical contracts.
 
 ### Separate mapping from transformation logic
 

@@ -97,6 +97,10 @@ class ProjectDefinitionTests(unittest.TestCase):
                     table_filters[relationship["table"]],
                 )
 
+    def test_graph_model_relationship_ids_are_safe_aliases(self) -> None:
+        for relationship in self.mapping["relationships"]:
+            self.assertRegex(relationship["id"], r"^[a-z][a-z0-9-]+$")
+
     def test_graph_mapping_tables_exist_in_seed_contract(self) -> None:
         seeded_tables = {
             record_set["logicalName"] for record_set in self.data["recordSets"]

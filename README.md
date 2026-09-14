@@ -96,6 +96,20 @@ The Fabric implementation is stored under `fabric/` and is controlled by:
 
 The Dataverse-generated landing Lakehouse remains read-only to the solution. `nb_build_dataverse_graph` reads it through OneLake and writes only `graph_nodes` and `graph_edges` to `lh_d365_graph_curated`.
 
+Deploy a native Fabric Graph Model over the curated tables:
+
+```powershell
+python scripts\deploy_fabric_graph_model.py `
+  --workspace-id <workspace-guid> `
+  --lakehouse-id <curated-lakehouse-guid>
+```
+
+Open `gm_d365_relationships` once in the Fabric portal to initialize its
+internal loading infrastructure, then select **Save** to load the model. Switch
+to **Query** mode to explore the graph visually or query it with GQL. Fabric
+currently requires this one-time portal initialization even when the complete
+Graph Model definition is deployed through its public REST API.
+
 Verify the local project definition:
 
 ```powershell

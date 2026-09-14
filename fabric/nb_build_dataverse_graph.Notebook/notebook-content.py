@@ -38,6 +38,7 @@ GRAPH_MAPPING_JSON = r'''__GRAPH_MAPPING_JSON__'''
 # CELL ********************
 
 import json
+import re
 import uuid
 from datetime import datetime, timezone
 from functools import reduce
@@ -114,6 +115,11 @@ def assert_unique(frame: DataFrame, key: str, label: str) -> None:
     if duplicates.limit(1).count():
         sample = [row[key] for row in duplicates.select(key).limit(10).collect()]
         raise ValueError(f"{label} contains duplicate {key} values. Sample: {sample}")
+
+
+def graph_table_name(kind: str, value: str) -> str:
+    suffix = re.sub(r"[^a-z0-9]+", "_", value.lower()).strip("_")
+    return f"graph_{kind}_{suffix}"
 
 # CELL ********************
 
@@ -234,6 +240,24 @@ if orphan_count:
 
 nodes.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("graph_nodes")
 edges.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable("graph_edges")
+
+for node_map in mapping["nodeTypes"]:
+    (
+        nodes.where(F.col("node_type") == node_map["type"])
+        .write.format("delta")
+        .mode("overwrite")
+        .option("overwriteSchema", "true")
+        .saveAsTable(graph_table_name("node", node_map["type"]))
+    )
+
+for edge_map in mapping["relationships"]:
+    (
+        edges.where(F.col("relationship_type") == edge_map["type"])
+        .write.format("delta")
+        .mode("overwrite")
+        .option("overwriteSchema", "true")
+        .saveAsTable(graph_table_name("edge", edge_map["id"]))
+    )
 
 # CELL ********************
 
