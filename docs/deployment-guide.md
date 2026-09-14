@@ -128,3 +128,7 @@ complete, and then use **Query** mode for visual exploration and GQL queries.
 Graph Model and Fabric IQ Ontology are preview features. An ontology is an
 optional semantic layer for business vocabulary, governance, and agent
 grounding; it isn't required to visualize this graph.
+
+For exact table mappings, portal steps, GQL examples, expected demo counts, and
+the refresh sequence, follow
+[Build and view the graph in Microsoft Fabric](fabric-graph-walkthrough.md).

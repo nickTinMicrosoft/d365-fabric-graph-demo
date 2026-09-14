@@ -91,6 +91,8 @@ The Fabric implementation is stored under `fabric/` and is controlled by:
 - `config/deployment.example.json` — environment-specific values required by a deployment.
 - `docs/architecture.md` — landing and curated Lakehouse design.
 - `docs/deployment-guide.md` — complete deployment procedure.
+- `docs/fabric-graph-walkthrough.md` — step-by-step Fabric build, visual
+  exploration, GQL, and refresh walkthrough.
 - `docs/security-and-operations.md` — production security and operating guidance.
 - `docs/troubleshooting.md` — common failure modes and resolutions.
 
@@ -109,6 +111,9 @@ internal loading infrastructure, then select **Save** to load the model. Switch
 to **Query** mode to explore the graph visually or query it with GQL. Fabric
 currently requires this one-time portal initialization even when the complete
 Graph Model definition is deployed through its public REST API.
+
+For the exact end-to-end procedure and manual portal equivalent, see
+[Build and view the graph in Microsoft Fabric](docs/fabric-graph-walkthrough.md).
 
 Verify the local project definition:
 
