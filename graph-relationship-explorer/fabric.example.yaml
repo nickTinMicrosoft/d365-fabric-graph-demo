@@ -1,0 +1,7 @@
+activeProfile: default
+profiles:
+  default:
+    semanticModels:
+      graphModel:
+        workspaceId: "<semantic-model-workspace-guid>"
+        itemId: "<semantic-model-guid>"

@@ -98,6 +98,8 @@ The Fabric implementation is stored under `fabric/` and is controlled by:
   speaker notes.
 - `docs/security-and-operations.md` — production security and operating guidance.
 - `docs/troubleshooting.md` — common failure modes and resolutions.
+- `graph-relationship-explorer/` — Fabric Data App for invoice-centered
+  relationship investigation over a Direct Lake semantic model.
 
 The Dataverse-generated landing Lakehouse remains read-only to the solution. `nb_build_dataverse_graph` reads it through OneLake and writes only `graph_nodes` and `graph_edges` to `lh_d365_graph_curated`.
 
@@ -117,6 +119,19 @@ Graph Model definition is deployed through its public REST API.
 
 For the exact end-to-end procedure and manual portal equivalent, see
 [Build and view the graph in Microsoft Fabric](docs/fabric-graph-walkthrough.md).
+
+## Fabric Data App
+
+`graph-relationship-explorer` turns the curated graph into a focused business
+experience. A user selects an invoice, follows its connected order, account,
+contacts, products, and service cases, and receives an evidence-based English
+summary of the path.
+
+The app queries the semantic model live through Fabric SSO. It does not embed
+demo records, copy graph data into an application database, or persist query
+results in the browser. See the
+[Relationship Lens deployment guide](graph-relationship-explorer/README.md)
+for configuration, validation, and deployment instructions.
 
 Verify the local project definition:
 

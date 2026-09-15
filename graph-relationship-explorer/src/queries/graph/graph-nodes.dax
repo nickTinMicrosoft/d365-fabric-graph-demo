@@ -1,0 +1,60 @@
+EVALUATE
+UNION(
+    SELECTCOLUMNS(
+        'graph_node_invoice',
+        "NodeId", 'graph_node_invoice'[node_id],
+        "NodeType", 'graph_node_invoice'[node_type],
+        "Label", 'graph_node_invoice'[label],
+        "BusinessKey", 'graph_node_invoice'[business_key],
+        "PropertiesJson", 'graph_node_invoice'[properties_json]
+    ),
+    SELECTCOLUMNS(
+        'graph_node_order',
+        "NodeId", 'graph_node_order'[node_id],
+        "NodeType", 'graph_node_order'[node_type],
+        "Label", 'graph_node_order'[label],
+        "BusinessKey", 'graph_node_order'[business_key],
+        "PropertiesJson", 'graph_node_order'[properties_json]
+    ),
+    SELECTCOLUMNS(
+        'graph_node_account',
+        "NodeId", 'graph_node_account'[node_id],
+        "NodeType", 'graph_node_account'[node_type],
+        "Label", 'graph_node_account'[label],
+        "BusinessKey", 'graph_node_account'[business_key],
+        "PropertiesJson", 'graph_node_account'[properties_json]
+    ),
+    SELECTCOLUMNS(
+        'graph_node_contact',
+        "NodeId", 'graph_node_contact'[node_id],
+        "NodeType", 'graph_node_contact'[node_type],
+        "Label", 'graph_node_contact'[label],
+        "BusinessKey", 'graph_node_contact'[business_key],
+        "PropertiesJson", 'graph_node_contact'[properties_json]
+    ),
+    SELECTCOLUMNS(
+        'graph_node_orderline',
+        "NodeId", 'graph_node_orderline'[node_id],
+        "NodeType", 'graph_node_orderline'[node_type],
+        "Label", 'graph_node_orderline'[label],
+        "BusinessKey", 'graph_node_orderline'[business_key],
+        "PropertiesJson", 'graph_node_orderline'[properties_json]
+    ),
+    SELECTCOLUMNS(
+        'graph_node_product',
+        "NodeId", 'graph_node_product'[node_id],
+        "NodeType", 'graph_node_product'[node_type],
+        "Label", 'graph_node_product'[label],
+        "BusinessKey", 'graph_node_product'[business_key],
+        "PropertiesJson", 'graph_node_product'[properties_json]
+    ),
+    SELECTCOLUMNS(
+        'graph_node_servicecase',
+        "NodeId", 'graph_node_servicecase'[node_id],
+        "NodeType", 'graph_node_servicecase'[node_type],
+        "Label", 'graph_node_servicecase'[label],
+        "BusinessKey", 'graph_node_servicecase'[business_key],
+        "PropertiesJson", 'graph_node_servicecase'[properties_json]
+    )
+)
+ORDER BY [NodeType], [Label]

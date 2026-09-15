@@ -1,0 +1,53 @@
+EVALUATE
+UNION(
+    SELECTCOLUMNS(
+        'graph_edge_order_generated_invoice',
+        "EdgeId", 'graph_edge_order_generated_invoice'[edge_id],
+        "RelationshipType", 'graph_edge_order_generated_invoice'[relationship_type],
+        "SourceNodeId", 'graph_edge_order_generated_invoice'[source_node_id],
+        "TargetNodeId", 'graph_edge_order_generated_invoice'[target_node_id]
+    ),
+    SELECTCOLUMNS(
+        'graph_edge_account_placed_order',
+        "EdgeId", 'graph_edge_account_placed_order'[edge_id],
+        "RelationshipType", 'graph_edge_account_placed_order'[relationship_type],
+        "SourceNodeId", 'graph_edge_account_placed_order'[source_node_id],
+        "TargetNodeId", 'graph_edge_account_placed_order'[target_node_id]
+    ),
+    SELECTCOLUMNS(
+        'graph_edge_contact_belongs_to_account',
+        "EdgeId", 'graph_edge_contact_belongs_to_account'[edge_id],
+        "RelationshipType", 'graph_edge_contact_belongs_to_account'[relationship_type],
+        "SourceNodeId", 'graph_edge_contact_belongs_to_account'[source_node_id],
+        "TargetNodeId", 'graph_edge_contact_belongs_to_account'[target_node_id]
+    ),
+    SELECTCOLUMNS(
+        'graph_edge_order_contains_orderline',
+        "EdgeId", 'graph_edge_order_contains_orderline'[edge_id],
+        "RelationshipType", 'graph_edge_order_contains_orderline'[relationship_type],
+        "SourceNodeId", 'graph_edge_order_contains_orderline'[source_node_id],
+        "TargetNodeId", 'graph_edge_order_contains_orderline'[target_node_id]
+    ),
+    SELECTCOLUMNS(
+        'graph_edge_orderline_references_product',
+        "EdgeId", 'graph_edge_orderline_references_product'[edge_id],
+        "RelationshipType", 'graph_edge_orderline_references_product'[relationship_type],
+        "SourceNodeId", 'graph_edge_orderline_references_product'[source_node_id],
+        "TargetNodeId", 'graph_edge_orderline_references_product'[target_node_id]
+    ),
+    SELECTCOLUMNS(
+        'graph_edge_account_opened_servicecase',
+        "EdgeId", 'graph_edge_account_opened_servicecase'[edge_id],
+        "RelationshipType", 'graph_edge_account_opened_servicecase'[relationship_type],
+        "SourceNodeId", 'graph_edge_account_opened_servicecase'[source_node_id],
+        "TargetNodeId", 'graph_edge_account_opened_servicecase'[target_node_id]
+    ),
+    SELECTCOLUMNS(
+        'graph_edge_contact_reported_servicecase',
+        "EdgeId", 'graph_edge_contact_reported_servicecase'[edge_id],
+        "RelationshipType", 'graph_edge_contact_reported_servicecase'[relationship_type],
+        "SourceNodeId", 'graph_edge_contact_reported_servicecase'[source_node_id],
+        "TargetNodeId", 'graph_edge_contact_reported_servicecase'[target_node_id]
+    )
+)
+ORDER BY [RelationshipType], [EdgeId]

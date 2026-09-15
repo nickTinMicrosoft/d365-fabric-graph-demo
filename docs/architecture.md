@@ -29,6 +29,7 @@ Curated graph Lakehouse
              +--> Spark and notebook traversal
              +--> SQL analytics endpoint
              +--> Power BI semantic model
+             +--> Fabric Data App
              +--> data science and AI workloads
 ```
 
@@ -96,5 +97,20 @@ The curated graph is optimized for analysis and traversal. Dynamics 365 remains 
    Delta tables sequentially. The shared `run_id` identifies rows from the same
    build; the two writes aren't a cross-table transaction.
 5. Downstream reports and analysis read only the curated contract.
+
+## Consumption architecture
+
+The native Fabric Graph Model and the Fabric Data App are complementary
+consumption surfaces:
+
+- The Graph Model provides general visual exploration and GQL traversal.
+- The Direct Lake semantic model exposes the typed graph tables through DAX.
+- The Relationship Lens Fabric Data App uses those live DAX results for a
+  controlled invoice investigation workflow, relationship drill-down, KPIs,
+  and a deterministic English narrative.
+
+The application does not write to Dataverse or duplicate the curated graph.
+Fabric brokered authentication identifies the user, while semantic-model Build
+and Read permissions govern query access.
 
 For larger implementations, replace full overwrite with watermark-based incremental processing and Delta `MERGE`. Retain full overwrite for small demonstrations because it is deterministic and easy to validate.
